@@ -20,7 +20,7 @@
     <Topbar />
 
     <main
-      class="flex-1 overflow-auto bg-[radial-gradient(circle_at_center,_rgba(0,255,255,0.03)_0,_transparent_70%)]"
+      class="flex-1 overflow-auto bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.03)_0,transparent_70%)]"
     >
       {@render children()}
     </main>
