@@ -14,13 +14,11 @@ export async function startTelemetryListener() {
     await listen<SystemSnapshot>(
         "system_snapshot",
         (event) => {
-            if (systemState === null) {
-                Object.assign(
-                    systemState = $state(event.payload)
-                );
+            Object.assign(
+                systemState,
+                event.payload
+            );
 
-                return;
-            }
             cpuHistory.push(
                 event.payload.cpu.usage
             );
@@ -28,7 +26,6 @@ export async function startTelemetryListener() {
             if (cpuHistory.length > 60) {
                 cpuHistory.shift();
             }
-            Object.assign(systemState, event.payload);
         }
     );
 }

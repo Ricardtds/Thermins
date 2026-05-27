@@ -19,6 +19,17 @@ export const systemState =
             total: 0,
             used: 0,
             usage_percent: 0,
+            total_swap: 0,
+            used_swap: 0,
         },
+
+        disks: [],
+
+        components: [],
+
+        processes: [],
+
+        networks: [],
+
         uptime: 0,
     });
