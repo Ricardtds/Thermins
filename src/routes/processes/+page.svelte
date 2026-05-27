@@ -1,264 +1,293 @@
 <script lang="ts">
+  import WidgetCard from "$lib/components/ui/WidgetCard.svelte";
+
   import { systemState } from "$lib/stores/system.svelte";
 
-  const recentEvents = [
-    {
-      title: "Kernel event detected",
-      time: "2 minutes ago",
-    },
-    {
-      title: "CPU temperature stabilized",
-      time: "5 minutes ago",
-    },
-    {
-      title: "Storage scan completed",
-      time: "12 minutes ago",
-    },
-  ];
+  let search = $state("");
 
-  const hardwareStatus = [
-    {
-      label: "CPU",
-      status: "Operational",
-    },
-    {
-      label: "GPU",
-      status: "Operational",
-    },
-    {
-      label: "Storage",
-      status: "Healthy",
-    },
-    {
-      label: "Network",
-      status: "Stable",
-    },
-  ];
-
-  const ramUsedGb = $derived.by(() => {
-    if (!systemState) return 0;
-
-    return systemState.memory.used / 1024 / 1024 / 1024;
+  const filteredProcesses = $derived.by(() => {
+    return systemState.processes
+      .filter((process) => {
+        return process.name.toLowerCase().includes(search.toLowerCase());
+      })
+      .sort((a, b) => {
+        return b.memory_usage - a.memory_usage;
+      });
   });
 
-  const ramTotalGb = $derived.by(() => {
-    if (!systemState) return 0;
-
-    return systemState.memory.total / 1024 / 1024 / 1024;
-  });
+  function formatMemory(bytes: number) {
+    return (bytes / 1024 / 1024).toFixed(1);
+  }
 </script>
 
-{#if systemState}
-  <section class="space-y-6">
+<div class="col-span-12">
+  <WidgetCard title="ACTIVE PROCESS TABLE">
     <!-- HEADER -->
-    <div>
-      <h1 class="text-4xl font-bold tracking-tight">Dashboard</h1>
-
-      <p class="mt-2 text-zinc-400">Real-time system telemetry overview</p>
-    </div>
-
-    <!-- METRIC CARDS -->
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-      <!-- CPU -->
-      <div class="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
-        <div class="mb-5">
-          <h2 class="text-xl font-semibold">CPU Information</h2>
-
-          <p class="text-sm text-zinc-500">Processor details</p>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <p class="text-sm text-zinc-500">Brand</p>
-
-            <p class="mt-1 font-medium">
-              {systemState.cpu.info.brand}
-            </p>
-          </div>
-
-          <div>
-            <p class="text-sm text-zinc-500">Vendor</p>
-
-            <p class="mt-1 font-medium">
-              {systemState.cpu.info.vendor_id}
-            </p>
-          </div>
-
-          <div>
-            <p class="text-sm text-zinc-500">Physical Cores</p>
-
-            <p class="mt-1 font-medium">
-              {systemState.cpu.info.physical_cores}
-            </p>
-          </div>
-
-          <div>
-            <p class="text-sm text-zinc-500">Logical Threads</p>
-
-            <p class="mt-1 font-medium">
-              {systemState.cpu.cores.length}
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
-        <p class="text-sm text-zinc-400">CPU Load</p>
-
-        <h2 class="mt-3 text-4xl font-bold">
-          {systemState.cpu.usage.toFixed(2)}%
-        </h2>
-
-        <div class="mt-4 h-2 overflow-hidden rounded-full bg-zinc-800">
-          <div
-            class="h-full rounded-full bg-cyan-400 transition-all duration-300"
-            style={`width: ${systemState.cpu.usage}%`}
-          ></div>
-        </div>
-      </div>
-
-      <!-- RAM -->
-      <div class="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
-        <p class="text-sm text-zinc-400">RAM Usage</p>
-
-        <h2 class="mt-3 text-4xl font-bold">
-          {ramUsedGb.toFixed(1)} GB
-        </h2>
-
-        <p class="mt-1 text-sm text-zinc-500">
-          / {ramTotalGb.toFixed(1)} GB
+    <div
+      class="
+        mb-6
+        flex
+        flex-col
+        gap-4
+        xl:flex-row
+        xl:items-center
+        xl:justify-between
+      "
+    >
+      <div>
+        <p
+          class="
+            text-xs
+            uppercase
+            tracking-[0.25em]
+            text-zinc-500
+          "
+        >
+          Process Monitor
         </p>
 
-        <div class="mt-4 h-2 overflow-hidden rounded-full bg-zinc-800">
-          <div
-            class="h-full rounded-full bg-emerald-400 transition-all duration-300"
-            style={`width: ${systemState.memory.usage_percent}%`}
-          />
-        </div>
+        <h2
+          class="
+            mt-2
+            text-4xl
+            font-black
+            text-zinc-100
+          "
+        >
+          {systemState.processes.length}
+        </h2>
+
+        <p class="mt-1 text-sm text-zinc-500">Active system processes</p>
       </div>
 
-      <!-- STORAGE -->
-      <div class="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
-        <p class="text-sm text-zinc-400">Storage Usage</p>
-
-        <h2 class="mt-3 text-4xl font-bold">72%</h2>
-
-        <div class="mt-4 h-2 overflow-hidden rounded-full bg-zinc-800">
-          <div class="h-full w-[72%] rounded-full bg-orange-400" />
-        </div>
-      </div>
-
-      <!-- NETWORK -->
-      <div class="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
-        <p class="text-sm text-zinc-400">Network Traffic</p>
-
-        <h2 class="mt-3 text-4xl font-bold">2.4 MB/s</h2>
-
-        <div class="mt-4 flex items-center gap-2 text-sm text-zinc-500">
-          <span>↓ 1.8 MB/s</span>
-          <span>↑ 0.6 MB/s</span>
-        </div>
+      <div class="w-full xl:w-80">
+        <input
+          bind:value={search}
+          type="text"
+          placeholder="Search process..."
+          class="
+            w-full
+            border
+            border-zinc-800
+            bg-black
+            px-4
+            py-3
+            text-sm
+            text-zinc-200
+            outline-none
+            transition
+            placeholder:text-zinc-600
+            focus:border-cyan-400
+          "
+        />
       </div>
     </div>
 
-    <!-- MAIN GRID -->
-    <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
-      <!-- CPU CHART -->
-      <div
-        class="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 xl:col-span-2"
-      >
-        <div class="mb-5 flex items-center justify-between">
-          <div>
-            <h2 class="text-xl font-semibold">CPU Activity</h2>
-
-            <p class="text-sm text-zinc-500">Real-time usage monitoring</p>
-          </div>
-
-          <div
-            class="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 text-sm text-cyan-300"
+    <!-- TABLE -->
+    <div
+      class="
+        overflow-hidden
+        border
+        border-zinc-800
+      "
+    >
+      <div class="max-h-175 overflow-auto">
+        <table
+          class="
+            w-full
+            border-collapse
+            text-sm
+          "
+        >
+          <thead
+            class="
+              sticky
+              top-0
+              z-10
+              bg-[#0f1015]
+            "
           >
-            Live
-          </div>
-        </div>
+            <tr
+              class="
+                border-b
+                border-zinc-800
+                text-left
+                uppercase
+                tracking-[0.25em]
+                text-zinc-500
+                text-xs
+              "
+            >
+              <th class="px-4 py-4"> PID </th>
 
-        <!-- CORES -->
-        <div class="grid grid-cols-2 gap-4 xl:grid-cols-4">
-          {#each systemState.cpu.cores as core}
-            <div class="rounded-xl bg-zinc-800 p-4">
-              <div class="flex items-center justify-between">
-                <p class="text-sm text-zinc-400">
-                  {core.name}
-                </p>
+              <th class="px-4 py-4"> Process Name </th>
 
-                <p class="text-xs text-zinc-500">
-                  {core.frequency} MHz
-                </p>
-              </div>
+              <th class="px-4 py-4"> CPU </th>
 
-              <h3 class="mt-3 text-2xl font-bold">
-                {core.usage.toFixed(1)}%
-              </h3>
+              <th class="px-4 py-4"> Memory </th>
 
-              <div class="mt-4 h-2 overflow-hidden rounded-full bg-zinc-700">
-                <div
-                  class="h-full rounded-full bg-cyan-400 transition-all duration-300"
-                  style={`width: ${core.usage}%`}
-                />
-              </div>
-            </div>
-          {/each}
-        </div>
-      </div>
+              <th class="px-4 py-4"> Working Directory </th>
+            </tr>
+          </thead>
 
-      <!-- EVENTS -->
-      <div class="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
-        <div class="mb-5">
-          <h2 class="text-xl font-semibold">Recent Events</h2>
+          <tbody>
+            {#each filteredProcesses as process}
+              <tr
+                class="
+                  border-b
+                  border-zinc-900
+                  transition
+                  hover:bg-cyan-500/5
+                "
+              >
+                <!-- PID -->
+                <td
+                  class="
+                    px-4
+                    py-4
+                    font-mono
+                    text-cyan-300
+                  "
+                >
+                  {process.id}
+                </td>
 
-          <p class="text-sm text-zinc-500">Latest system activity</p>
-        </div>
+                <!-- NAME -->
+                <td class="px-4 py-4">
+                  <div>
+                    <p
+                      class="
+                        font-semibold
+                        text-zinc-100
+                      "
+                    >
+                      {process.name}
+                    </p>
 
-        <div class="space-y-3">
-          {#each recentEvents as event}
-            <div class="rounded-xl bg-zinc-800 p-4">
-              <p class="font-medium">
-                {event.title}
-              </p>
+                    <p
+                      class="
+                        mt-1
+                        text-xs
+                        uppercase
+                        tracking-widest
+                        text-zinc-600
+                      "
+                    >
+                      Runtime Process
+                    </p>
+                  </div>
+                </td>
 
-              <p class="mt-1 text-sm text-zinc-500">
-                {event.time}
-              </p>
-            </div>
-          {/each}
-        </div>
+                <!-- CPU -->
+                <td class="px-4 py-4">
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="
+                        h-2
+                        w-28
+                        overflow-hidden
+                        bg-zinc-900
+                      "
+                    >
+                      <div
+                        class="
+                          h-full
+                          bg-cyan-400
+                          transition-all
+                          duration-300
+                        "
+                        style={`width: ${Math.min(process.cpu_usage, 100)}%`}
+                      ></div>
+                    </div>
+
+                    <span
+                      class="
+                        w-12
+                        text-right
+                        font-mono
+                        text-zinc-300
+                      "
+                    >
+                      {process.cpu_usage.toFixed(1)}%
+                    </span>
+                  </div>
+                </td>
+
+                <!-- MEMORY -->
+                <td class="px-4 py-4">
+                  <div>
+                    <p
+                      class="
+                        font-mono
+                        text-fuchsia-300
+                      "
+                    >
+                      {formatMemory(process.memory_usage)}
+                      MB
+                    </p>
+
+                    <div
+                      class="
+                        mt-2
+                        h-1.5
+                        overflow-hidden
+                        bg-zinc-900
+                      "
+                    >
+                      <div
+                        class="
+                          h-full
+                          bg-fuchsia-400
+                        "
+                        style={`width: ${Math.min(
+                          process.memory_usage / 1024 / 1024 / 10,
+                          100,
+                        )}%`}
+                      ></div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- DIRECTORY -->
+                <td class="px-4 py-4">
+                  <p
+                    class="
+                      max-w-105
+                      truncate
+                      font-mono
+                      text-xs
+                      text-zinc-500
+                    "
+                  >
+                    {process.working_directory || "-"}
+                  </p>
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
       </div>
     </div>
 
-    <!-- HARDWARE STATUS -->
-    <div class="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
-      <div class="mb-5">
-        <h2 class="text-xl font-semibold">Hardware Status</h2>
+    <!-- FOOTER -->
+    <div
+      class="
+        mt-4
+        flex
+        items-center
+        justify-between
+        border-t
+        border-zinc-800
+        pt-4
+        text-xs
+        uppercase
+        tracking-[0.25em]
+        text-zinc-500
+      "
+    >
+      <span> Real-Time Process Telemetry </span>
 
-        <p class="text-sm text-zinc-500">Current subsystem state</p>
-      </div>
-
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {#each hardwareStatus as item}
-          <div class="rounded-xl bg-zinc-800 p-4">
-            <div class="flex items-center justify-between">
-              <p class="text-sm text-zinc-400">
-                {item.label}
-              </p>
-
-              <div class="h-3 w-3 rounded-full bg-emerald-400" />
-            </div>
-
-            <p class="mt-4 text-lg font-semibold">
-              {item.status}
-            </p>
-          </div>
-        {/each}
-      </div>
+      <span> Updating Live </span>
     </div>
-  </section>
-{/if}
-oi
+  </WidgetCard>
+</div>
