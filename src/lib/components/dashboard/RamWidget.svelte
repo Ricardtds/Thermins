@@ -1,22 +1,25 @@
 <script lang="ts">
   import WidgetCard from "$lib/components/ui/WidgetCard.svelte";
 
-  import { systemState } from "$lib/stores/system.svelte";
+  import {
+    dynamicSystemState,
+    staticSystemState,
+  } from "$lib/stores/system.svelte";
 
   const usedGb = $derived.by(() => {
-    return systemState.memory.used / 1024 / 1024 / 1024;
+    return dynamicSystemState.memory.used / 1024 / 1024 / 1024;
   });
 
   const totalGb = $derived.by(() => {
-    return systemState.memory.total / 1024 / 1024 / 1024;
+    return staticSystemState.memory.total / 1024 / 1024 / 1024;
   });
 
   const memoryBars = $derived.by(() => {
-    return Math.floor(systemState.memory.usage_percent / 6.25);
+    return Math.floor(dynamicSystemState.memory.usagePercent / 6.25);
   });
 
   const usagePercent = $derived.by(() => {
-    return systemState.memory.usage_percent.toFixed(1);
+    return dynamicSystemState.memory.usagePercent.toFixed(1);
   });
 </script>
 
@@ -101,7 +104,7 @@
                   : "bg-zinc-900"
               }
             `}
-          />
+          ></div>
         {/each}
       </div>
     </div>

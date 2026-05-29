@@ -1,26 +1,20 @@
-import type { SystemSnapshot }
+import type { DynamicSystemSnapshot, StaticSystemSnapshot }
     from "$lib/types/system";
 
-export const systemState =
-    $state<SystemSnapshot>({
+export const dynamicSystemState =
+    $state<DynamicSystemSnapshot>({
+        batteries: [],
+        energyRate: 0,
         cpu: {
-            usage: 0,
 
             cores: [],
-
-            info: {
-                brand: "",
-                vendor_id: "",
-                physical_cores: 0,
-            },
+            usage: 0
         },
-
         memory: {
-            total: 0,
+            freeMemory: 0,
+            usagePercent: 0,
             used: 0,
-            usage_percent: 0,
-            total_swap: 0,
-            used_swap: 0,
+            usedSwap: 0
         },
 
         disks: [],
@@ -32,4 +26,29 @@ export const systemState =
         networks: [],
 
         uptime: 0,
+
+        refreshRate: 0,
+    });
+
+export const staticSystemState =
+    $state<StaticSystemSnapshot>({
+        batteries: [],
+        host: {
+            hostName: "",
+            kernelVersion: "",
+            osVersion: "",
+            name: ""
+        },
+        cpu: {
+            brand: "",
+            physicalCores: 0,
+            vendorId: "",
+        },
+        memory: {
+            total: 0,
+            totalSwap: 0
+        },
+
+        disks: []
+
     });

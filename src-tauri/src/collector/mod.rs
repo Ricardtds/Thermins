@@ -6,3 +6,4 @@ pub mod disks;
 pub mod network;
 pub mod components;
 pub mod processes;
+pub mod battery;

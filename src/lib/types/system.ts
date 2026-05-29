@@ -1,16 +1,29 @@
-import type { CpuInfo } from "./cpu";
-import type { MemoryInfo } from "./memory";
+import type { StaticCpuInfo, DynamicCpuInfo } from "./cpu";
+import type { StaticMemoryInfo, DynamicMemoryInfo } from "./memory";
 import type { SensoInfo } from "./component";
-import type { DiskInfo } from "./disk";
+import type { StaticDiskInfo, DynamicDiskInfo } from "./disk";
 import type { NetworkInfo } from "./network";
 import type { ProcessInfo } from "./process";
+import type { HostInfo } from "./host";
+import type { DynamicBatteryInfo, StaticBatteryInfo } from "./battery";
 
-export interface SystemSnapshot {
+export interface DynamicSystemSnapshot {
+    batteries: DynamicBatteryInfo[];
     components: SensoInfo[];
-    cpu: CpuInfo;
-    disks: DiskInfo[];
-    memory: MemoryInfo;
+    cpu: DynamicCpuInfo;
+    disks: DynamicDiskInfo[];
+    memory: DynamicMemoryInfo;
     networks: NetworkInfo[];
     processes: ProcessInfo[];
     uptime: number;
+    refreshRate: number;
+    energyRate: number;
+}
+
+export interface StaticSystemSnapshot {
+    batteries: StaticBatteryInfo[];
+    host: HostInfo
+    cpu: StaticCpuInfo;
+    disks: StaticDiskInfo[];
+    memory: StaticMemoryInfo;
 }

@@ -1,0 +1,1 @@
+pub const REFRESH_RATE: u64 = 2;

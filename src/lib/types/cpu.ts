@@ -1,17 +1,16 @@
-export interface CpuCoreInfo {
+interface DynamicCpuCoreInfo {
     name: string;
     usage: number;
     frequency: number;
 }
 
-export interface CpuInfo {
+export interface DynamicCpuInfo {
     usage: number;
-    cores: CpuCoreInfo[];
-    info: CpuStaticInfo;
+    cores: DynamicCpuCoreInfo[];
 }
 
-export interface CpuStaticInfo {
+export interface StaticCpuInfo {
     brand: string;
-    vendor_id: string;
-    physical_cores: number;
+    vendorId: string;
+    physicalCores: number;
 }

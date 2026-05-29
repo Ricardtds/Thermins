@@ -1,8 +1,9 @@
+import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { cpuHistory } from "$lib/stores/history.svelte";
-import type { SystemSnapshot } from "$lib/types/system";
+import type { StaticSystemSnapshot, DynamicSystemSnapshot } from "$lib/types/system";
 
-import { systemState } from "$lib/stores/system.svelte";
+import { staticSystemState, dynamicSystemState } from "$lib/stores/system.svelte";
 
 let initialized = false;
 
@@ -11,13 +12,14 @@ export async function startTelemetryListener() {
 
     initialized = true;
 
-    await listen<SystemSnapshot>(
+    await listen<DynamicSystemSnapshot>(
         "system_snapshot",
         (event) => {
             Object.assign(
-                systemState,
+                dynamicSystemState,
                 event.payload
             );
+            console.log(event.payload);
 
             cpuHistory.push(
                 event.payload.cpu.usage
@@ -27,5 +29,14 @@ export async function startTelemetryListener() {
                 cpuHistory.shift();
             }
         }
+    );
+}
+
+export async function getSystemInfo() {
+    let system = await invoke<StaticSystemSnapshot>("get_static_info")
+    console.log("Vindo do invoke", system);
+    Object.assign(
+        staticSystemState,
+        system
     );
 }

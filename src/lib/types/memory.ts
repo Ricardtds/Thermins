@@ -1,7 +1,11 @@
-export interface MemoryInfo {
+export interface StaticMemoryInfo {
   total: number;
+  totalSwap: number;
+};
+
+export interface DynamicMemoryInfo {
   used: number;
-  usage_percent: number;
-  total_swap: number;
-  used_swap: number;
-}
+  freeMemory: number;
+  usedSwap: number;
+  usagePercent: number;
+};

@@ -5,19 +5,20 @@ use std::{
 
 use tauri::{AppHandle, Emitter};
 use sysinfo::{Components, Disks, Networks, System};
+use crate::constants::REFRESH_RATE;
 
 use crate::{
     collector::{
         cpu::get_cpu_info,
-        memory::get_memory_info,
-        disks::get_disks_info,
+        memory::get_dynamic_memory_info,
+        disks::get_dynamic_disks_info,
         network::get_networks_info,
         components::get_components_info,
         processes::get_process_info,
+        battery::get_battery_info
     },
-    models::snapshot::SystemSnapshot,
+    models::snapshot::DynamicSystemSnapshot,
 };
-
 pub fn start_telemetry(app: AppHandle) {
     thread::spawn(move || {
         let mut sys = System::new_all();
@@ -29,21 +30,22 @@ pub fn start_telemetry(app: AppHandle) {
             disks.refresh(true);
             networks.refresh(true);
             components.refresh(true);
-
-            let snapshot = SystemSnapshot {
+            let snapshot = DynamicSystemSnapshot {
                 cpu: get_cpu_info(&sys),
-                memory: get_memory_info(&sys),
-                disks: get_disks_info(&disks),
+                memory: get_dynamic_memory_info(&sys),
+                disks: get_dynamic_disks_info(&disks),
                 networks: get_networks_info(&networks),
                 components: get_components_info(&components),
                 processes: get_process_info(&sys),
+                batteries: get_battery_info().ok(),
                 uptime: System::uptime(),
+                refresh_rate: REFRESH_RATE
             };
 
             app.emit("system_snapshot", snapshot)
                 .unwrap();
 
-            thread::sleep(Duration::from_secs(5));
+            thread::sleep(Duration::from_secs(REFRESH_RATE));
         }
     });
 }

@@ -7,7 +7,6 @@
     <h2 class="text-xs uppercase tracking-[0.25em] text-zinc-400">
       {title}
     </h2>
-
     <div class="h-px flex-1 bg-zinc-800 ml-4" />
   </div>
 
