@@ -1,9 +1,9 @@
-pub mod cpu;
-pub mod memory;
-pub mod snapshot;
-pub mod host;
-pub mod disks;
-pub mod network;
-pub mod components;
-pub mod processes;
 pub mod battery;
+pub mod components;
+pub mod cpu;
+pub mod disks;
+pub mod host;
+pub mod memory;
+pub mod network;
+pub mod processes;
+pub mod snapshot;
