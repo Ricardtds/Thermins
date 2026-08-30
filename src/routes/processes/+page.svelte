@@ -18,7 +18,9 @@
 <WidgetCard title="ACTIVE PROCESSES" class="h-full flex flex-col">
   <div class="flex flex-col h-full">
     <!-- HEADER -->
-    <div class="mb-4 gap-3 flex xl:flex-row xl:items-center xl:justify-between">
+    <div
+      class="mb-4 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between"
+    >
       <div class="flex justify-between w-full">
         <div>
           <p
@@ -42,6 +44,7 @@
         <input
           bind:value={search}
           type="text"
+          aria-label="Search processes"
           placeholder="Search process..."
           class="w-full border border-zinc-800 bg-black px-3 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm text-zinc-200 outline-none transition placeholder:text-zinc-600 focus:border-cyan-400"
         />
@@ -49,7 +52,7 @@
     </div>
 
     <!-- TABLE -->
-    <div class="overflow-y-scroll border border-zinc-800">
+    <div class="min-h-0 flex-1 overflow-auto border border-zinc-800">
       <div class="min-w-[820px]">
         <table class="w-full table-fixed border-collapse text-xs sm:text-sm">
           <!-- HEADER -->
@@ -102,7 +105,7 @@
                       <div
                         class="h-full bg-cyan-400 transition-all duration-300"
                         style={`width: ${Math.min(process.cpuUsage, 100)}%`}
-                      />
+                      ></div>
                     </div>
 
                     <span
@@ -129,7 +132,7 @@
                           process.memoryUsage / 1024 / 1024 / 10,
                           100,
                         )}%`}
-                      />
+                      ></div>
                     </div>
                   </div>
                 </td>
@@ -142,6 +145,15 @@
                   >
                     {process.workingDirectory || "-"}
                   </p>
+                </td>
+              </tr>
+            {:else}
+              <tr>
+                <td
+                  colspan="5"
+                  class="px-4 py-12 text-center text-sm text-zinc-500"
+                >
+                  No process matches this search.
                 </td>
               </tr>
             {/each}

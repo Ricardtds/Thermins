@@ -1,30 +1,22 @@
 <script lang="ts">
   import WidgetCard from "$lib/components/ui/WidgetCard.svelte";
 
-  import {
-    staticSystemState,
-    dynamicSystemState,
-  } from "$lib/stores/system.svelte";
+  import { dynamicSystemState } from "$lib/stores/system.svelte";
 
   const GB = 1024 * 1024 * 1024;
-
-  function getDynamicDisk(name: string) {
-    return dynamicSystemState.disks.find((disk) => disk.name === name);
-  }
 </script>
 
 <div class="col-span-12 xl:col-span-4">
   <WidgetCard title="STORAGE CAPACITY">
     <div class="space-y-6">
-      {#each staticSystemState.disks as disk}
-        {@const dynamicDisk = getDynamicDisk(disk.name)}
+      {#each dynamicSystemState.disks as disk (disk.mountPoint)}
+        {@const usedSpace = disk.totalSpace - disk.availableSpace}
 
-        {#if dynamicDisk}
-          {@const usedSpace = disk.totalSpace - dynamicDisk.availableSpace}
+        {@const usagePercent = disk.totalSpace > 0
+          ? Math.min(100, Math.max(0, (usedSpace / disk.totalSpace) * 100))
+          : 0}
 
-          {@const usagePercent = (usedSpace / disk.totalSpace) * 100}
-
-          <div class="border border-zinc-800 bg-zinc-950/40 p-4">
+        <div class="border border-zinc-800 bg-zinc-950/40 p-4">
             <!-- HEADER -->
             <div class="mb-4 flex items-center justify-between">
               <div>
@@ -75,7 +67,7 @@
                 <p class="text-zinc-500">Available</p>
 
                 <p class="font-semibold text-cyan-300">
-                  {(dynamicDisk.availableSpace / GB).toFixed(1)} GB
+                  {(disk.availableSpace / GB).toFixed(1)} GB
                 </p>
               </div>
             </div>
@@ -88,7 +80,7 @@
                 </p>
 
                 <p class="text-zinc-100">
-                  {(dynamicDisk.readBytes / (1024 * 1024)).toFixed(2)}
+                  {(disk.readBytes / (1024 * 1024)).toFixed(2)}
                   MB/s
                 </p>
               </div>
@@ -99,13 +91,12 @@
                 </p>
 
                 <p class="text-zinc-100">
-                  {(dynamicDisk.writtenBytes / (1024 * 1024)).toFixed(2)}
+                  {(disk.writtenBytes / (1024 * 1024)).toFixed(2)}
                   MB/s
                 </p>
               </div>
             </div>
-          </div>
-        {/if}
+        </div>
       {/each}
     </div>
   </WidgetCard>

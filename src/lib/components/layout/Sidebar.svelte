@@ -1,76 +1,97 @@
 <script lang="ts">
   import { page } from "$app/state";
+  import SystemIcon from "$lib/components/ui/SystemIcon.svelte";
+  import { onMount } from "svelte";
 
-  export let isOpen = false;
-  export let closeSidebar: () => void = () => {};
+  let {
+    isOpen = false,
+    closeSidebar = () => {},
+  }: { isOpen?: boolean; closeSidebar?: () => void } = $props();
+
+  let isDesktop = $state(false);
 
   const items = [
-    { href: "/dashboard", label: "Dashboard", icon: "◫" },
-    { href: "/processes", label: "Processes", icon: "⌘" },
-    { href: "/sensors", label: "Sensors", icon: "◉" },
-    { href: "/logs", label: "Logs", icon: "▤" },
-    { href: "/performance", label: "Performance", icon: "◌" },
+    { href: "/dashboard", label: "Dashboard", symbol: "monitoring" },
+    { href: "/processes", label: "Processes", symbol: "memory" },
+    { href: "/sensors", label: "Sensors", symbol: "thermostat" },
+    { href: "/terminal", label: "Terminal", symbol: "terminal" },
   ];
+
+  function isActive(href: string) {
+    return page.url.pathname === href || page.url.pathname.startsWith(`${href}/`);
+  }
+
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.key === "Escape" && isOpen && !isDesktop) closeSidebar();
+  }
+
+  onMount(() => {
+    const mediaQuery = window.matchMedia("(min-width: 64rem)");
+    const updateViewport = () => (isDesktop = mediaQuery.matches);
+
+    updateViewport();
+    mediaQuery.addEventListener("change", updateViewport);
+
+    return () => mediaQuery.removeEventListener("change", updateViewport);
+  });
 </script>
 
-<!-- BACKDROP -->
+<svelte:window onkeydown={handleKeydown} />
+
 {#if isOpen}
   <button
-    class="fixed inset-0 z-40 bg-black/50"
-    on:click={closeSidebar}
+    type="button"
+    class="fixed inset-0 z-40 bg-black/65 backdrop-blur-sm lg:hidden"
+    onclick={closeSidebar}
     aria-label="Fechar menu"
-  />
+  ></button>
 {/if}
 
-<!-- SIDEBAR -->
 <aside
-  class={`fixed inset-y-0 left-0 z-50 w-64 flex flex-col border-r border-zinc-800 bg-[#111116] transition-transform duration-300 ${
+  aria-label="Navegação principal"
+  aria-hidden={!isDesktop && !isOpen ? "true" : undefined}
+  inert={!isDesktop && !isOpen}
+  class={`app-sidebar fixed inset-y-0 left-0 z-50 flex w-64 shrink-0 flex-col border-r border-zinc-800 bg-[#111116] transition-transform duration-200 lg:static lg:z-auto lg:w-60 lg:translate-x-0 ${
     isOpen ? "translate-x-0" : "-translate-x-full"
   }`}
 >
-  <!-- HEADER -->
-  <div
-    class="flex items-center justify-between gap-4 border-b border-zinc-800 p-6"
-  >
-    <div>
-      <h1 class="text-4xl font-bold tracking-wider text-zinc-100">Thermins</h1>
-      <p class="mt-1 text-sm uppercase tracking-widest text-zinc-500">
-        Local Host
+  <div class="flex items-center justify-between gap-4 border-b border-zinc-800 p-5">
+    <div class="min-w-0">
+      <h1 class="text-2xl font-bold tracking-wider text-zinc-100">Thermins</h1>
+      <p class="mt-1 text-[10px] uppercase tracking-[0.28em] text-zinc-500">
+        System monitor
       </p>
     </div>
 
     <button
-      class="rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm uppercase tracking-[0.3em] text-zinc-300 transition hover:border-cyan-400 hover:text-cyan-300"
-      on:click={closeSidebar}
+      type="button"
+      class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-zinc-700 bg-zinc-900 text-zinc-300 transition hover:border-cyan-400 hover:text-cyan-300 lg:hidden"
+      onclick={closeSidebar}
+      aria-label="Fechar menu"
     >
       ✕
     </button>
   </div>
 
-  <!-- NAV -->
-  <nav class="flex-1 space-y-2 p-4">
+  <nav class="flex-1 space-y-2 overflow-y-auto p-4">
     {#each items as item}
       <a
         href={item.href}
-        class={`flex items-center gap-4 border border-transparent px-4 py-4 text-sm uppercase tracking-widest transition-all ${
-          page.url.pathname === item.href
-            ? "border-zinc-700 bg-black text-cyan-300"
-            : "text-zinc-400 hover:border-zinc-800 hover:bg-zinc-900"
+        aria-current={isActive(item.href) ? "page" : undefined}
+        class={`flex min-h-12 items-center gap-4 rounded-lg border px-4 py-3 text-xs uppercase tracking-[0.18em] transition-colors ${
+          isActive(item.href)
+            ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-300"
+            : "border-transparent text-zinc-400 hover:border-zinc-800 hover:bg-zinc-900 hover:text-zinc-100"
         }`}
-        on:click={closeSidebar}
+        onclick={closeSidebar}
       >
-        <span class="text-lg">{item.icon}</span>
+        <SystemIcon name={item.symbol} size={20} class="shrink-0" />
         <span>{item.label}</span>
       </a>
     {/each}
   </nav>
 
-  <!-- FOOTER -->
-  <div class="border-t border-zinc-800 p-4">
-    <button
-      class="w-full border border-zinc-700 px-4 py-3 text-sm uppercase tracking-widest text-zinc-300 transition hover:border-cyan-400 hover:text-cyan-300"
-    >
-      Reboot
-    </button>
+  <div class="border-t border-zinc-800 p-4 text-[10px] uppercase tracking-[0.2em] text-zinc-600">
+    Local telemetry · v0.1.0
   </div>
 </aside>

@@ -1,6 +1,6 @@
 export interface HostInfo {
-  name: string,
-  kernelVersion: string,
-  osVersion: string,
-  hostName: string,
+  name: string;
+  kernelVersion: string;
+  osVersion: string;
+  hostName: string;
 }
