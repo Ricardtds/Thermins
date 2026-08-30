@@ -1,6 +1,6 @@
 import type { StaticCpuInfo, DynamicCpuInfo } from "./cpu";
 import type { StaticMemoryInfo, DynamicMemoryInfo } from "./memory";
-import type { SensoInfo } from "./component";
+import type { SensorInfo } from "./component";
 import type { StaticDiskInfo, DynamicDiskInfo } from "./disk";
 import type { NetworkInfo } from "./network";
 import type { ProcessInfo } from "./process";
@@ -9,7 +9,7 @@ import type { DynamicBatteryInfo, StaticBatteryInfo } from "./battery";
 
 export interface DynamicSystemSnapshot {
     batteries: DynamicBatteryInfo[];
-    components: SensoInfo[];
+    components: SensorInfo[];
     cpu: DynamicCpuInfo;
     disks: DynamicDiskInfo[];
     memory: DynamicMemoryInfo;
@@ -17,12 +17,11 @@ export interface DynamicSystemSnapshot {
     processes: ProcessInfo[];
     uptime: number;
     refreshRate: number;
-    energyRate: number;
 }
 
 export interface StaticSystemSnapshot {
     batteries: StaticBatteryInfo[];
-    host: HostInfo
+    host: HostInfo;
     cpu: StaticCpuInfo;
     disks: StaticDiskInfo[];
     memory: StaticMemoryInfo;

@@ -3,7 +3,10 @@
 
   import { cpuHistory } from "$lib/stores/history.svelte";
 
-  import { systemState } from "$lib/stores/system.svelte";
+  import {
+    dynamicSystemState,
+    staticSystemState,
+  } from "$lib/stores/system.svelte";
 
   const width = 900;
   const height = 260;
@@ -13,7 +16,7 @@
 
     return cpuHistory
       .map((value, index) => {
-        const x = (index / (cpuHistory.length - 1)) * width;
+        const x = (index / Math.max(cpuHistory.length - 1, 1)) * width;
 
         const y = height - (value / 100) * height;
 
@@ -30,7 +33,7 @@
         <p class="text-xs uppercase tracking-widest text-zinc-500">Processor</p>
 
         <h2 class="mt-2 text-3xl font-bold text-zinc-100">
-          {systemState.cpu.info.brand}
+          {staticSystemState.cpu.brand || "Processor"}
         </h2>
       </div>
 
@@ -40,7 +43,7 @@
         </p>
 
         <h2 class="mt-2 text-5xl font-bold text-cyan-300">
-          {systemState.cpu.usage.toFixed(1)}%
+          {dynamicSystemState.cpu.usage.toFixed(1)}%
         </h2>
       </div>
     </div>
@@ -118,12 +121,12 @@
 
       <span>
         Threads:
-        {systemState.cpu.cores.length}
+        {dynamicSystemState.cpu.cores.length}
       </span>
 
       <span>
         Vendor:
-        {systemState.cpu.info.vendor_id}
+        {staticSystemState.cpu.vendorId || "Unknown"}
       </span>
     </div>
   </WidgetCard>

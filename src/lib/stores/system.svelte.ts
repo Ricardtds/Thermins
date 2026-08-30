@@ -4,7 +4,6 @@ import type { DynamicSystemSnapshot, StaticSystemSnapshot }
 export const dynamicSystemState =
     $state<DynamicSystemSnapshot>({
         batteries: [],
-        energyRate: 0,
         cpu: {
 
             cores: [],
@@ -29,6 +28,18 @@ export const dynamicSystemState =
 
         refreshRate: 0,
     });
+
+export type TelemetryStatus = "connecting" | "connected" | "unavailable";
+
+export const telemetryState = $state<{
+    status: TelemetryStatus;
+    message: string;
+    lastUpdated: number | null;
+}>({
+    status: "connecting",
+    message: "Connecting to the local collector",
+    lastUpdated: null,
+});
 
 export const staticSystemState =
     $state<StaticSystemSnapshot>({

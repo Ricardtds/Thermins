@@ -1,8 +1,8 @@
 [package]
 name = "thermins"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "Local cross-platform system resource monitor"
+authors = ["Ricardo"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -19,9 +19,9 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 tauri = { version = "2", features = [] }
-tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sysinfo = "0.39.2"
-battery = "0.7.8"
 
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+battery = "0.7.8"

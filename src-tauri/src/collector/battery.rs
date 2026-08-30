@@ -1,29 +1,47 @@
-use battery::Manager;
 use crate::models::battery::{DynamicBatteryInfo, StaticBatteryInfo};
 
-pub fn get_battery_info() -> Result<Vec<DynamicBatteryInfo>, battery::Error> {
-    let manager = Manager::new()?;
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
+use battery::Manager;
 
-    manager
-    .batteries()?
-    .map(|battery| {
-        let mut battery = battery?;
-        let _ = battery.refresh();
+pub fn get_battery_info() -> Option<Vec<DynamicBatteryInfo>> {
+    #[cfg(not(any(target_os = "android", target_os = "ios")))]
+    {
+        let manager = Manager::new().ok()?;
 
-        Ok(DynamicBatteryInfo::from(battery))
-    })
-    .collect()
+        return manager
+            .batteries()
+            .ok()?
+            .map(|battery| {
+                let mut battery = battery?;
+                let _ = battery.refresh();
+
+                Ok(DynamicBatteryInfo::from(battery))
+            })
+            .collect::<Result<Vec<_>, battery::Error>>()
+            .ok();
+    }
+
+    #[cfg(any(target_os = "android", target_os = "ios"))]
+    None
 }
 
-pub fn get_static_battery_info() -> Result<Vec<StaticBatteryInfo>, battery::Error> {
-    let manager = Manager::new()?;
+pub fn get_static_battery_info() -> Option<Vec<StaticBatteryInfo>> {
+    #[cfg(not(any(target_os = "android", target_os = "ios")))]
+    {
+        let manager = Manager::new().ok()?;
 
-    manager
-        .batteries()?
-        .map(|battery| {
-            let battery = battery?;
+        return manager
+            .batteries()
+            .ok()?
+            .map(|battery| {
+                let battery = battery?;
 
-            Ok(StaticBatteryInfo::from(battery))
-        })
-        .collect()
+                Ok(StaticBatteryInfo::from(battery))
+            })
+            .collect::<Result<Vec<_>, battery::Error>>()
+            .ok();
+    }
+
+    #[cfg(any(target_os = "android", target_os = "ios"))]
+    None
 }

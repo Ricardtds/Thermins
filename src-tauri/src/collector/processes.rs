@@ -1,5 +1,5 @@
-use sysinfo::{System};
 use crate::models::processes::ProcessInfo;
+use sysinfo::System;
 
 pub fn get_process_info(sys: &System) -> Vec<ProcessInfo> {
     let mut processes: Vec<ProcessInfo> = sys
@@ -8,9 +8,9 @@ pub fn get_process_info(sys: &System) -> Vec<ProcessInfo> {
         .filter(|(_, process)| process.cpu_usage() > 0.1)
         .map(|(pid, process)| ProcessInfo {
             id: pid.to_string(),
-            parent_id: process.parent().map(|pid| { pid.as_u32()}),
+            parent_id: process.parent().map(|pid| pid.as_u32()),
             name: process.name().to_string_lossy().into_owned(),
-            user_id: process.user_id().map(|uid| {uid.to_string()}),
+            user_id: process.user_id().map(|uid| uid.to_string()),
             working_directory: process
                 .cwd()
                 .map(|p| p.to_string_lossy().into_owned())
@@ -23,14 +23,14 @@ pub fn get_process_info(sys: &System) -> Vec<ProcessInfo> {
             virtual_memory: process.virtual_memory(),
 
             cmd: process
-                .environ()
+                .cmd()
                 .iter()
                 .map(|arg| arg.to_string_lossy().to_string())
                 .collect(),
         })
         .collect();
 
-    processes.sort_by(|a, b| b.cpu_usage.partial_cmp(&a.cpu_usage).unwrap());
+    processes.sort_by(|a, b| b.cpu_usage.total_cmp(&a.cpu_usage));
 
     processes.truncate(200);
 
