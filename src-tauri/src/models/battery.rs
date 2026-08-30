@@ -27,6 +27,7 @@ pub struct StaticBatteryInfo {
     pub state_of_health: f32,
 }
 
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
 impl From<battery::Battery> for DynamicBatteryInfo {
     fn from(battery: battery::Battery) -> Self {
         Self {
@@ -37,11 +38,12 @@ impl From<battery::Battery> for DynamicBatteryInfo {
             time_to_full: battery.time_to_full().map(|t| t.value as u64),
             temperature: battery.temperature().map(|t| t.value),
             voltage: battery.voltage().value,
-            energy_rate: battery.energy_rate().value
+            energy_rate: battery.energy_rate().value,
         }
     }
 }
 
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
 impl From<battery::Battery> for StaticBatteryInfo {
     fn from(battery: battery::Battery) -> Self {
         Self {
