@@ -2,107 +2,81 @@
   import {
     dynamicSystemState,
     staticSystemState,
+    telemetryState,
   } from "$lib/stores/system.svelte";
   import { formatUptime } from "$lib/utils/time";
 
   export let toggleSidebar: () => void = () => {};
+
+  const statusClasses = {
+    connecting: "bg-amber-400",
+    connected: "bg-emerald-400",
+    unavailable: "bg-red-400",
+  } as const;
 </script>
 
-<!-- <header
-  class="flex h-16 items-center justify-between border-b border-zinc-800 bg-[#0d0d12] px-4 sm:px-6"
+<header
+  class="app-topbar z-30 flex min-h-16 shrink-0 items-center justify-between gap-3 border-b border-white/10 bg-[#111317]/90 px-3 py-2 backdrop-blur-md sm:px-5"
 >
-  <div class="flex min-w-0 flex-1 items-center gap-6">
+  <div class="flex min-w-0 items-center gap-3">
     <button
-      class="rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-white transition hover:border-cyan-400"
-      on:click={toggleSidebar}
+      type="button"
+      class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 text-lg text-zinc-200 transition hover:border-cyan-400 hover:text-cyan-300 lg:hidden"
+      onclick={toggleSidebar}
       aria-label="Abrir menu"
     >
       ☰
     </button>
 
     <div
-      class="flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-cyan-300"
+      class="hidden h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#00d1ff] to-[#bd00ff] shadow-[0_0_10px_rgba(189,0,255,0.35)] sm:flex"
     >
-      <div class="h-2 w-2 rounded-full bg-cyan-400"></div>
-
-      <span>
-        {formatUptime(dynamicSystemState.uptime)}
-      </span>
+      <img src="/Thermins.png" alt="" class="h-full w-full object-cover" />
     </div>
 
-    <div
-      class="hidden min-w-0 flex-1 items-center gap-4 text-sm text-zinc-400 md:flex"
-    >
-      <span class="truncate">
-        {staticSystemState.host.hostName}
-      </span>
-
-      <span class="text-zinc-600">•</span>
-
-      <span>
-        Kernel {staticSystemState.host.kernelVersion}
-      </span>
-
-      <span class="text-zinc-600">•</span>
-
-      <span>
-        {staticSystemState.host.name}
-        {staticSystemState.host.osVersion}
-      </span>
+    <div class="min-w-0">
+      <p class="truncate text-xs font-bold tracking-wide text-zinc-100">
+        {staticSystemState.host.hostName || "Local host"}
+      </p>
+      <p class="truncate text-[10px] uppercase tracking-[0.14em] text-cyan-300/80">
+        {staticSystemState.host.name || "System"}
+        {#if staticSystemState.host.osVersion}
+          · {staticSystemState.host.osVersion}
+        {/if}
+        {#if staticSystemState.host.kernelVersion}
+          <span class="hidden md:inline">
+            · Kernel {staticSystemState.host.kernelVersion}
+          </span>
+        {/if}
+      </p>
     </div>
   </div>
 
-  <div class="flex items-center gap-2">
-    <button
-      class="flex h-10 w-10 items-center justify-center rounded-md border border-zinc-800 bg-zinc-900 text-zinc-400 transition hover:border-cyan-400 hover:text-cyan-300"
+  <div class="flex shrink-0 items-center gap-2 sm:gap-3">
+    <div
+      class="hidden text-right text-[10px] uppercase tracking-[0.16em] text-zinc-500 sm:block"
     >
-      ⚙
-    </button>
-
-    <button
-      class="flex h-10 w-10 items-center justify-center rounded-md border border-zinc-800 bg-zinc-900 text-zinc-400 transition hover:border-cyan-400 hover:text-cyan-300"
-    >
-      ⌁
-    </button>
+      <p>Uptime</p>
+      <p class="text-zinc-300">{formatUptime(dynamicSystemState.uptime)}</p>
+    </div>
 
     <div
-      class="flex h-10 w-10 items-center justify-center rounded-md border border-zinc-700 bg-zinc-900 text-xs font-medium text-cyan-300"
+      class="flex min-h-10 items-center gap-2 rounded-full border border-zinc-800 bg-black/40 px-3 text-[10px] uppercase tracking-[0.12em] text-zinc-300"
+      title={telemetryState.message}
+      aria-label={telemetryState.message}
     >
-      RT
+      <span
+        class={`h-2 w-2 rounded-full ${statusClasses[telemetryState.status]} ${
+          telemetryState.status === "connecting" ? "animate-pulse" : ""
+        }`}
+      ></span>
+      <span class="hidden sm:inline">
+        {telemetryState.status === "connected"
+          ? "Live"
+          : telemetryState.status === "connecting"
+            ? "Connecting"
+            : "Offline"}
+      </span>
     </div>
-  </div>
-</header> -->
-
-<!-- Header -->
-<header
-  class="flex flex-col justify-between items-center p-1 border-b border-white/10 bg-[#111317]/80 backdrop-blur-md sticky top-0 z-50"
->
-  <div class="flex w-full items-center gap-3 justify-between">
-    <div
-      class="w-12 h-12 bg-gradient-to-br from-[#00d1ff] to-[#bd00ff] rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(189,0,255,0.4)]"
-    >
-      <img src="/Thermins.png" />
-      <!-- <span class="font-bold text-xs italic">Thermins</span> -->
-    </div>
-    <div class="flex flex-col justify-center items-center">
-      <div class="flex items-center justify-between w-full">
-        <h1 class="text-sm font-bold tracking-tighter text-white/90">
-          Thermins
-        </h1>
-        {staticSystemState.host.name} -
-        {staticSystemState.host.osVersion}
-      </div>
-      <p class="text-[10px] text-[#00d1ff] font-mono tracking-widest uppercase">
-        {staticSystemState.host.hostName}
-      </p>
-      <p class="text-[10px] text-[#00d1ff] font-mono tracking-widest uppercase">
-        KERNEL: {staticSystemState.host.kernelVersion}
-      </p>
-    </div>
-    <button class="p-2 hover:bg-white/5 rounded-lg transition-colors">
-      <span class="material-symbols-outlined text-white/60"
-        >settings_input_component</span
-      >
-    </button>
   </div>
 </header>
