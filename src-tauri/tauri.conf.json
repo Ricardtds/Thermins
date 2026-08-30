@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "thermins",
+  "productName": "Thermins",
   "version": "0.1.0",
   "identifier": "com.ricardo.thermins",
   "build": {
@@ -13,12 +13,17 @@
     "windows": [
       {
         "title": "Thermins",
-        "width": 800,
-        "height": 600
+        "width": 1100,
+        "height": 720,
+        "minWidth": 360,
+        "minHeight": 560
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; connect-src ipc: http://ipc.localhost; img-src 'self' asset: http://asset.localhost data:; style-src 'self' 'unsafe-inline'; font-src 'self'",
+      "headers": {
+        "X-Content-Type-Options": "nosniff"
+      }
     }
   },
   "bundle": {
